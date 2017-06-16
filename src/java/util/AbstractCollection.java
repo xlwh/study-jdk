@@ -135,13 +135,14 @@ public abstract class AbstractCollection<E> implements Collection<E> {
      * return list.toArray();
      * }</pre>
      */
-    //把集合转化为数组
+    //把集合转化为数组，是非线程安全的，如果在转化的过程中，有元素插入或者什么变更，会影响
     public Object[] toArray() {
         // Estimate size of array; be prepared to see more or fewer elements
         Object[] r = new Object[size()];
         Iterator<E> it = iterator();
         for (int i = 0; i < r.length; i++) {
             if (! it.hasNext()) // fewer elements than expected
+                //使用迭代器，直接寻找是否有元素可以进行迭代，如果没有的话，就直接返回一个空的数组即可
                 return Arrays.copyOf(r, i);
             r[i] = it.next();
         }
@@ -179,13 +180,17 @@ public abstract class AbstractCollection<E> implements Collection<E> {
     public <T> T[] toArray(T[] a) {
         // Estimate size of array; be prepared to see more or fewer elements
         int size = size();
+        //直接使用反射，创建一个数组
         T[] r = a.length >= size ? a :
                   (T[])java.lang.reflect.Array
                   .newInstance(a.getClass().getComponentType(), size);
+        //创建迭代器，进行数组的迭代
         Iterator<E> it = iterator();
 
         for (int i = 0; i < r.length; i++) {
             if (! it.hasNext()) { // fewer elements than expected
+                
+                // a == r ????
                 if (a == r) {
                     r[i] = null; // null-terminate
                 } else if (a.length < i) {
@@ -284,6 +289,8 @@ public abstract class AbstractCollection<E> implements Collection<E> {
      * @throws NullPointerException          {@inheritDoc}
      */
     public boolean remove(Object o) {
+
+        //转成迭代器，然后调用迭代器中的remove方法进行remove
         Iterator<E> it = iterator();
         if (o==null) {
             while (it.hasNext()) {
